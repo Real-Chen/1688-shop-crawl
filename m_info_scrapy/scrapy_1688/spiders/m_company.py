@@ -18,8 +18,7 @@ class mInfoSpider(scrapy.Spider):
     }
 
     def start_requests(self):
-
-        lines = linecache.getlines('nan.csv')
+        lines = linecache.getlines('tong.csv')
         start_urls = []
         for line in lines[1:]:
             data = line.strip().split(',')
@@ -38,14 +37,15 @@ class mInfoSpider(scrapy.Spider):
             )
 
     def parse(self, response):
-        result_file = "nan_m.csv"
+        result_file = "tong_m.csv"
 
-        # 打印出相应结果
+        # 解析xpath数据
         tags = response.xpath('//div[@class="info-tag-list"]/a/text()')
         chengxintong = response.xpath('//div[@class="auto-summary-div tp-logo"]/*/text()')
         peoples = response.xpath('//*[@id="scroller"]/div[4]/ul/li[1]/div/span/text()')
         check = response.xpath('//div[@class="archive-authinfo-summary"]/ul/li[2]//text()')
 
+        # 清洗数据
         tag_str = '|'.join([tag.extract().strip() for tag in tags]).encode('utf8')
         chengxintong_str = ''.join([data.extract().strip() for data in chengxintong]).encode('utf8')
         people_str = '|'.join([data.extract().strip() for data in peoples]).encode('utf8').replace('\n', '').replace(',', '').replace(' ', '')

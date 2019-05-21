@@ -12,13 +12,10 @@ import numpy as np
 import random
 import linecache
 
-
-source_file = "nan.csv"
-result_file = "nan_contact.csv"
-
+# 导入需要爬去的网页
+source_file = "tong.csv"
 
 company_list = []
-
 lines = linecache.getlines(source_file)
 for line in lines:
     data = line[1:].strip().split(',')
@@ -30,45 +27,24 @@ print("总共需要爬去{0}个商家信息".format(len(company_list)))
 
 contact_list = [(raw_url, raw_url + '/page/contactinfo.htm') for raw_url in company_list]
 
-# company_list = [
-#     "https://huajunzhiyi.1688.com",
-#     "https://shop1482206425147.1688.com",
-#     "https://shop9103636635809.1688.com",
-#     "https://shop1472566760481.1688.com",
-#     "https://shop1457542848269.1688.com",
-# ]
 
+# 开启selenium浏览器
 driver = webdriver.Firefox()
-# chromedriver = "C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe"
-# driver = webdriver.Chrome(chromedriver)
 
 # 淘宝登录的url
 login_url = 'https://login.taobao.com/member/login.jhtml'
 # 跳转到登录页面
 driver.get(login_url)
+# 等待20s手动扫码登陆
 time.sleep(20)
 
-
-# 构建agents防止反爬虫
-user_agents = [
-    'Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11',
-    'Opera/9.25 (Windows NT 5.1; U; en)',
-    'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1;.NET CLR 1.1.4322; .NET CLR2.0.50727)',
-    'Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.5(like Gecko) (Kubuntu)',
-    'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.12) Gecko/20070731 Ubuntu/dapper-security Firefox/1.5.0.12',
-    'Lynx/2.8.5rel.1 libwww-FM/2.14 SSL-MM/1.4.1 GNUTLS/1.2.9',
-    "Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.7 (KHTML, like Gecko) Ubuntu/11.04 Chromium/16.0.912.77 Chrome/16.0.912.77 Safari/535.7",
-    "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:10.0) Gecko/20100101 Firefox/10.0 ",
-]
-
-f = open(result_file, 'w')
-
-
+# 开始爬虫
 count = 0
 for (company_url, contact_url) in contact_list:
     try:
         driver.get(contact_url)
 
+        # 使用xpath解析数据
         title = driver.find_elements_by_xpath('''//div[@class="contact-info"]/h4''')
         people = driver.find_elements_by_class_name("membername")
         mobile_num = driver.find_elements_by_xpath('''//dl[@class="m-mobilephone"]/dd''')
@@ -84,12 +60,9 @@ for (company_url, contact_url) in contact_list:
             else:
                 info_list.append('')
 
-
-        # pattern = re.compile(r'<dt>电.*话：</dt>\n +<dd>[\d ]+</dd>', re.S)
-        # pattern = re.compile('<div class="contcat-desc".*?>(.*?)</div>', re.S)
+        # 使用正则表达式解析电话
         tel_pattern = re.compile('<dt>电.*话：</dt>\n +<dd>([\d ]+)</dd>', re.S)
         response = driver.page_source
-        # info = re.findall(pattern, response)
         telecom = ""
         telecom_num = re.findall(tel_pattern, response)
         if telecom_num:
@@ -97,8 +70,6 @@ for (company_url, contact_url) in contact_list:
         info_list.append(telecom)
 
         line = ','.join(info_list) + '\n'
-
-        f.write(line)
         print(line,)
 
     except Exception as e:
@@ -111,7 +82,5 @@ for (company_url, contact_url) in contact_list:
     if count % 50 == 0:
         print("已爬去{0}个商家，共需要爬去{1}个商家。".format(count, len(contact_list)))
 
-# 关闭csv
-f.close()
 # 关闭模拟浏览器
 driver.close()
