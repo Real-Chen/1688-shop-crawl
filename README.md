@@ -1,7 +1,7 @@
 # 1688-shop-crawl
 
 通过selenium、scrapy爬去阿里巴巴的商户信息  
-输入是同学已经爬好的商户数据 nan.csv  
+输入是同学已经爬好的商户数据 tong.csv  
 该数据是通过1688搜索界面的异步加载接口得到的  
 
 contact_crawl: 
