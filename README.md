@@ -9,5 +9,5 @@ contact_crawl:
 >运行方式，直接运行contact_html.py文件即可
 
 info_scrapy: 
->使用scrapy框架爬去1688手机端接口的商户信息
+>使用scrapy框架爬去1688手机端接口的商户信息  
 >运行方式，scrapy框架下直接运行1688-shop-crawl/m_info_scrapy/scrapy_1688/spiders/m_company.py
